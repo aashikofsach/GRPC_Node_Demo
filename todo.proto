@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+
+
+// Service for managing todos
+service TodoService {
+  // Creates a new todo item
+  rpc CreateTodo(Todo) returns (Todo) {}
+  // Retrieves a todo item by ID
+  rpc GetTodo(TodoRequest) returns (Todo) {}
+  // Lists all todo items
+  rpc ListTodos(google.protobuf.Empty) returns (TodoList) {}
+}
+
+message Todo {
+  string          id      = 1 ;
+  string          name    = 2 ;
+  optional string content = 3 ;
+
+}
+
+message TodoList {
+  repeated Todo todos = 1 ;
+}
+
+message TodoRequest {
+  string id = 1 ;
+}
