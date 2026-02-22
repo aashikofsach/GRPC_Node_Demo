@@ -1,37 +1,52 @@
 const gprc = require("@grpc/grpc-js");
-const todosProto = gprc.load("./todo.proto");
+// const todosProto = gprc.load("./todo.proto");
+const protoLoader = require("@grpc/proto-loader");
 
+const packageDefinition = protoLoader.loadSync("./todo.proto", {
+  keepCase: true,
+  longs: String,
+  enums: String,
+  defaults: true,
+  oneofs: true,
+});
 
-const server = gprc.Server();
+const todosProto = gprc.loadPackageDefinition(packageDefinition);
+
+const server = new gprc.Server();
 
 const todos = [
-    {
-        id : "1", name : "ritik" , content : "file Ok"
-    },
-     {
-        id : "2", name : "aadi" , content : "file Ok also"
-    }
-]
+  {
+    id: "1",
+    name: "ritik",
+    content: "file Ok",
+  },
+  {
+    id: "2",
+    name: "aadi",
+    content: "file Ok also",
+  },
+];
 
-server.addService(todosProto.addService.service, {
-    ListTodos : (call, callback) => {
-        callback(null , todos)
+server.addService(todosProto.TodoService.service, {
+  ListTodos: (call, callback) => {
+    callback(null, todos);
+  },
+  CreateTodo: (call, callback) => {
+    let incomingNewTodo = call.request;
+    todos.push(incomingNewTodo);
+    callback(null, incomingNewTodo);
+  },
+  GetTodo: (call, callback) => {
+    let incomingTodoRequest = call.request;
+    let todoId = incomingTodoRequest.id;
+    let response = todos.filter((todo) => todo.id === todoId);
+    if (response.length > 0) callback(null, response);
+    else callback({ error: "todo not found" }, null);
+  },
+});
 
-    },
-    CreateTodo : (call , callback) => {
+server.bindAsync("127.0.0.1:5500", gprc.ServerCredentials.createInsecure(), () => {
+  console.log("server started ");
 
-        let incomingNewTodo = call.request;
-        todos.push(incomingNewTodo);
-        callback(null , incomingNewTodo);
-    },
-    GetTodo : (call , callback)=> {
-
-        let incomingTodoRequest = call.request;
-        let todoId = incomingTodoRequest.id;
-        let response = todos.filter((todo)=> todo.id === todoId);
-        if(response.length > 0)
-             callback(null , response);
-            else
-            callback({error : "todo not found"}, null)
-    }
-})
+  server.start();
+});
