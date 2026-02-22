@@ -33,6 +33,7 @@ server.addService(todosProto.TodoService.service, {
   },
   CreateTodo: (call, callback) => {
     let incomingNewTodo = call.request;
+    console.log(incomingNewTodo);
     todos.push(incomingNewTodo);
     callback(null, incomingNewTodo);
   },
