@@ -29,7 +29,7 @@ const todos = [
 
 server.addService(todosProto.TodoService.service, {
   ListTodos: (call, callback) => {
-    callback(null, todos);
+    callback(null, { todos : todos});
   },
   CreateTodo: (call, callback) => {
     let incomingNewTodo = call.request;
@@ -45,7 +45,7 @@ server.addService(todosProto.TodoService.service, {
   },
 });
 
-server.bindAsync("127.0.0.1:5500", gprc.ServerCredentials.createInsecure(), () => {
+server.bindAsync("127.0.0.1:5501", gprc.ServerCredentials.createInsecure(), () => {
   console.log("server started ");
 
   server.start();
